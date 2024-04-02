@@ -15,29 +15,15 @@ contract TestMarketplaceNFT is BaseTest {
     event BuyOfferCreated(uint256 indexed buyOfferIdCounter);
     event BuyOfferAccepted(uint256 indexed _buyOfferIdCounter);
     event BuyOfferCancelled(uint256 indexed _buyOfferIdCounter);
-    
-    // load to next string the url that is saved in the file ".env"
-    //string MAINNET_RPC_URL = vm.envString("MAINNET_RPC_URL");
+
 
     MarketplaceNFT public marketplaceNFT;
     ProxyV1 public proxy;
     MyNFT public nft;
 
-    // Bored Ape Yacht Club NFT collection address deployed on Mainnet
-
-    // struct Offer {
-    //     uint128 price;
-    //     uint128 deadline;
-    //     uint64 tokenId;
-    //     address nftAddress;
-    //     bool isEnded;
-    //     address offerer;
-    // }
 
     function setUp() public override {
         super.setUp();
-        // Mainnet fork is created and selected to be used from next line
-        //vm.createSelectFork(MAINNET_RPC_URL);
 
         // Marketplace.sol deployment
         marketplaceNFT = new MarketplaceNFT();

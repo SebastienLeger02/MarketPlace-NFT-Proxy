@@ -7,14 +7,15 @@ import "test/utils/Utilities.sol";
 
 contract BaseTest is Test {
 
-		struct Users {
-			address payable alice;
-			address payable bob;
-			address payable charlie;
-			address payable jason;
-			address payable lea;
-}
-	  Users public users;
+    struct Users {
+        address payable alice;
+        address payable bob;
+        address payable charlie;
+        address payable jason;
+        address payable lea;
+    }
+	
+    Users public users;
     Utilities internal utils;
 	  /**
 			* @dev Dans le cas oú l'on veut que nos users utilise des tokens et non des ethers
@@ -25,7 +26,7 @@ contract BaseTest is Test {
   
     function setUp() public virtual {
         // setup utils
-      utils = new Utilities();
+        utils = new Utilities();
 
 		/**
 			* @dev Dans l'initialisation des users, qui récupère la function creatUser()
@@ -33,7 +34,7 @@ contract BaseTest is Test {
 		*/
 
         // setup users
-      users = Users({ 
+        users = Users({ 
 			alice : utils.createUser("Alice"),
 			bob: utils.createUser("Bob"),
 			charlie: utils.createUser("Charlie"),
@@ -42,6 +43,6 @@ contract BaseTest is Test {
 		});
 
 			// Initialise comme utilisateur principal Alice (Owner)
-			vm.startPrank({msgSender: users.alice, txOrigin: users.alice});
+		vm.startPrank({msgSender: users.alice, txOrigin: users.alice});
     }
 }
