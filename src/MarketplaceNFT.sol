@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
  * @notice This contract enables us to generate and execute buy and sell orders for NFT , via a Marketplace .
 */
 
-contract MarketplaceNFT is  UUPSUpgradeable, Initializable { // IERC721Receiver
+contract MarketplaceNFT is UUPSUpgradeable, Initializable { // IERC721Receiver
 
    
     // ================================================================
@@ -25,12 +25,11 @@ contract MarketplaceNFT is  UUPSUpgradeable, Initializable { // IERC721Receiver
         * 'sellOfferIdCounter' : Counter that increments with each sales order created, providing unique identifiers.
         * 'buyOfferIdCounter' : Counter that increments with each purchase order created, providing unique identifiers.
         * 'marketplaceName' : the name of the marketplace. It will be received by parameter in the contract builder.
-        * 'nftContract' : Reference standard for the ERC721 token, to use its properties.
+        * 'contractOwner' : Owner of the smart contract
         */
     uint256 public sellOfferIdCounter;
     uint256 public buyOfferIdCounter;
     address public contractOwner;
-    address payable private owner;
     string public marketplaceName;
 
    /**
@@ -69,14 +68,26 @@ contract MarketplaceNFT is  UUPSUpgradeable, Initializable { // IERC721Receiver
     // |                            LOGIC                             |
     // ================================================================
 
-    error DeadlinePassed();// Offer deadline passed 
-    error PriceNull(); // No price
-    error NoOwnerOfNft(); // Not the owner of the NFT
-    error BadPrice(); // The offer price is not the price sent
-    error OfferClosed(); // Offre closed
-    error DeadlineNotPassed(); // Limited time still not passed
-    error NotOwner(); // msg.sender is not the owner
-    error BelowZero(); // The price must be greater than zero
+    /**
+     * @notice Errors issued when conditions are not respected.
+     * @dev 'error'  description
+     * 'DeadlinePassed' : Offer deadline passed 
+     * 'PriceNull' : No price
+     * 'NoOwnerOfNft' : Not the owner of the NFT
+     * 'BadPrice' : The offer price is not the price sent
+     * 'OfferClosed' : Offre closed
+     * 'DeadlineNotPassed' : Limited time still not passed
+     * 'NotOwner' : msg.sender is not the owner
+     * 'BelowZero' : The price must be greater than zero
+     */
+    error DeadlinePassed();
+    error PriceNull(); 
+    error NoOwnerOfNft(); 
+    error BadPrice(); 
+    error OfferClosed(); 
+    error DeadlineNotPassed(); 
+    error NotOwner(); 
+    error BelowZero(); 
 
     event EtherReceived(address indexed sender, uint256 indexed amount);
     event SellOfferCreated(uint256 indexed sellOfferIdCounter);
@@ -260,7 +271,7 @@ contract MarketplaceNFT is  UUPSUpgradeable, Initializable { // IERC721Receiver
     * @param _nftAddress, address of  NFT
     * @param _tokenId, ID of NFT
     * @param _deadline, deadline for buying confirmation
-    * @dev Create a buy order with param,
+    * @dev Create a purchase order, which allows a person to propose an offer to buy a person's NFT. 
     * All this information is implemented in the 'buyOffers' mapping.
     * Increment 'buyOfferIdCounter'.
     * Emits a 'BuyOfferCreated' event, with the offer ID as parameter.
