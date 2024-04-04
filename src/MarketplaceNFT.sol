@@ -20,13 +20,13 @@ contract MarketplaceNFT is UUPSUpgradeable, Initializable { // IERC721Receiver
     // |                            STORAGE                           |
     // ================================================================
 
-       /**
-        * @dev variables role
-        * 'sellOfferIdCounter' : Counter that increments with each sales order created, providing unique identifiers.
-        * 'buyOfferIdCounter' : Counter that increments with each purchase order created, providing unique identifiers.
-        * 'marketplaceName' : the name of the marketplace. It will be received by parameter in the contract builder.
-        * 'contractOwner' : Owner of the smart contract
-        */
+    /**
+    * @dev variables role
+    * 'sellOfferIdCounter' : Counter that increments with each sales order created, providing unique identifiers.
+    * 'buyOfferIdCounter' : Counter that increments with each purchase order created, providing unique identifiers.
+    * 'marketplaceName' : the name of the marketplace. It will be received by parameter in the contract builder.
+    * 'contractOwner' : Owner of the smart contract
+    */
     uint256 public sellOfferIdCounter;
     uint256 public buyOfferIdCounter;
     address public contractOwner;
