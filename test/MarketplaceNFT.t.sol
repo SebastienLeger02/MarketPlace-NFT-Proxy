@@ -161,6 +161,43 @@ contract TestMarketplaceNFT is BaseTest {
 
     }
 
+    function test_IDCounter() public {
+
+         nft.approve(address(proxy), 1);
+
+        (bool okIdCounter1, bytes memory answer) = address(proxy).call(abi.encodeWithSignature("sellOfferIdCounter()"));
+        require (okIdCounter1, "Call failed sellOfferIdCounter()"); 
+        uint256 offerIdCounter =  abi.decode(answer, (uint256)); 
+        assertEq(offerIdCounter, 0);
+
+        // Prepares and controls the SellOfferCreated event to be issued
+        vm.expectEmit(true,false,false,false);
+        emit SellOfferCreated(1);
+
+        (bool ok, ) = address(proxy).call(abi.encodeWithSignature("createSellOffer(address,uint64,uint128,uint128)",
+             nft, 1, 20 ether, uint128(block.timestamp) + 5 days));
+        require (ok, "Call failed createSellOffer()");
+
+         (bool okGetOffer, bytes memory answerOffer) = address(proxy).call(abi.encodeWithSignature("getSellOffer(uint256)", 0));
+        require (okGetOffer, "Call failed getSellOffer()"); 
+
+        MarketplaceNFT.Offer memory offer =  abi.decode(answerOffer, (MarketplaceNFT.Offer));
+
+
+        assertEq(offer.offerer, users.alice); // Check if the owner of the offer is "alice".
+        assertEq(offer.nftAddress, address(nft)); // Checks if the NFT is the same as the one in the offer 
+        assertEq(offer.deadline, block.timestamp + 5 days); // Check deadline
+        assertEq(offer.tokenId, 1); // Checks token ID
+        assertEq(offer.price, 20 ether); // Checks price 
+        assertEq(offer.isEnded, false); // Check if the offer is still open
+        
+
+      (bool okIdCounter2, bytes memory answerCounter) = address(proxy).call(abi.encodeWithSignature("sellOfferIdCounter()"));
+        require (okIdCounter2, "Call failed sellOfferIdCounter()");
+        uint256 offerIdCounter2 =  abi.decode(answerCounter, (uint256));
+        assertEq(offerIdCounter2, 1);
+    }
+
     // _______________________________________
     // --------  OnERC721Received ------------
     // _______________________________________

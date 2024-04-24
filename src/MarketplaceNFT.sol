@@ -173,27 +173,31 @@ contract MarketplaceNFT is UUPSUpgradeable, Initializable { // IERC721Receiver
         uint64 _tokenId,
         uint128 _price, 
         uint128 _deadline
-    ) 
-        public NFTOwner(_nftAddress, _tokenId)
-    {
+        ) 
+            public NFTOwner(_nftAddress, _tokenId)
+        {
 
         if(_price <= 0 ether) revert PriceNull();
         if(_deadline <= block.timestamp) revert DeadlinePassed();
 
-        sellOffers[sellOfferIdCounter] = Offer({
-            offerer : msg.sender,
-            nftAddress : _nftAddress,
-            tokenId : _tokenId,
-            price : _price,
-            deadline : _deadline,
-            isEnded : false
+        uint256 _sellOfferIdCounter = sellOfferIdCounter;
+
+        // Faire un test pour voir si je met sellOfferIdCounter dans une variable, ça me permet également de modifier son etat 
+        sellOffers[_sellOfferIdCounter] = Offer({
+            offerer: msg.sender,
+            nftAddress: _nftAddress,
+            tokenId: _tokenId,
+            price: _price,
+            deadline: _deadline,
+            isEnded: false
         });
 
         sellOfferIdCounter++;
+        _sellOfferIdCounter++;
 
         IERC721(_nftAddress).safeTransferFrom(msg.sender, address(this), _tokenId);
 
-        emit SellOfferCreated(sellOfferIdCounter);
+        emit SellOfferCreated(_sellOfferIdCounter);
         
     }
 
@@ -221,13 +225,11 @@ contract MarketplaceNFT is UUPSUpgradeable, Initializable { // IERC721Receiver
 
     function acceptSellOffer(uint256 _sellOfferIdCounter) public payable {
 
-        uint256 priceUser = msg.value;
-
         Offer memory sellOffer = sellOffers[_sellOfferIdCounter];
         
         if(sellOffer.isEnded == true) revert OfferClosed();
         if(sellOffer.deadline < block.timestamp) revert DeadlinePassed();
-        if(sellOffer.price != priceUser) revert BadPrice(); 
+        if(sellOffer.price != msg.value) revert BadPrice(); 
 
         sellOffers[_sellOfferIdCounter].isEnded = true;
         
@@ -235,7 +237,10 @@ contract MarketplaceNFT is UUPSUpgradeable, Initializable { // IERC721Receiver
 
         nftContract.safeTransferFrom(address(this),msg.sender,sellOffer.tokenId);
 
-        payable(sellOffer.offerer).transfer(priceUser);
+        //payable(sellOffer.offerer).call(msg.value);
+
+        (bool enviado,) = payable(sellOffer.offerer).call{value: msg.value}("");
+        require(enviado, "Error al enviar Ether");
 
         emit SellOfferAccepted(_sellOfferIdCounter);
     }
@@ -286,20 +291,23 @@ contract MarketplaceNFT is UUPSUpgradeable, Initializable { // IERC721Receiver
             if(_deadline < block.timestamp) revert DeadlinePassed();
             if(msg.value <= 0) revert BelowZero();
 
+            uint256 _buyOfferIdCounter = buyOfferIdCounter;
+
             Offer memory offer = Offer({
-            nftAddress : _nftAddress,
-            tokenId : _tokenId,
-            offerer : msg.sender,
-            price : msg.value,
-            deadline : _deadline,
-            isEnded : false
+            nftAddress: _nftAddress,
+            tokenId: _tokenId,
+            offerer: msg.sender,
+            price: msg.value,
+            deadline: _deadline,
+            isEnded: false
         });
 
-        buyOffers[buyOfferIdCounter] = offer;
+        buyOffers[_buyOfferIdCounter] = offer;
         
         buyOfferIdCounter++;
+        _buyOfferIdCounter++;
 
-        emit BuyOfferCreated(buyOfferIdCounter);
+        emit BuyOfferCreated(_buyOfferIdCounter);
         
     }
 
